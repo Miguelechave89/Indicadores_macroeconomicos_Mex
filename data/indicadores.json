@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-07-23T15:02:32+00:00",
+    "generated_at": "2026-07-24T14:45:00+00:00",
     "base_year": 2018,
     "default_window": "since_2018",
     "windows": [
@@ -706,6 +706,18 @@
           "column": 0,
           "status": "revision",
           "reason": "Valor idéntico al de Consumo Privado (104.4568568234) en el mismo mes: duplicado sospechoso entre series no relacionadas. Pendiente de verificación contra INEGI (BIE) una vez cargado INEGI_TOKEN."
+        },
+        {
+          "period": "Feb 26 P",
+          "column": 0,
+          "status": "revision",
+          "reason": "Valor idéntico al de Consumo Privado (104.4568568234) en el mismo mes: duplicado sospechoso entre series no relacionadas. Pendiente de verificación contra INEGI (BIE) una vez cargado INEGI_TOKEN."
+        },
+        {
+          "period": "Feb 26 P",
+          "column": 0,
+          "status": "revision",
+          "reason": "Valor idéntico al de Consumo Privado (104.4568568234) en el mismo mes: duplicado sospechoso entre series no relacionadas. Pendiente de verificación contra INEGI (BIE) una vez cargado INEGI_TOKEN."
         }
       ]
     },
@@ -832,6 +844,18 @@
       "last_checked": "2026-07-16",
       "source_origin": "legacy_dashboard",
       "data_quality": [
+        {
+          "period": "Feb 26 R",
+          "column": 0,
+          "status": "revision",
+          "reason": "Valor idéntico al de IMAI (104.4568568234) en el mismo mes: duplicado sospechoso entre series no relacionadas. Pendiente de verificación contra INEGI (BIE) una vez cargado INEGI_TOKEN."
+        },
+        {
+          "period": "Feb 26 R",
+          "column": 0,
+          "status": "revision",
+          "reason": "Valor idéntico al de IMAI (104.4568568234) en el mismo mes: duplicado sospechoso entre series no relacionadas. Pendiente de verificación contra INEGI (BIE) una vez cargado INEGI_TOKEN."
+        },
         {
           "period": "Feb 26 R",
           "column": 0,
