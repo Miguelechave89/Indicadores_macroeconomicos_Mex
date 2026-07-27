@@ -75,13 +75,14 @@ function renderHeader() {
 function renderNav() {
   const nav = $("#tabs");
   nav.innerHTML = "";
-  const primary = el("div", { class: "nav-row primary" });
-  const secondary = el("div", { class: "nav-row secondary" });
-  VIEWS.forEach((v) => {
+  const row = el("div", { class: "nav-row" });
+  // Navegación discreta por secciones; las fichas se abren desde las tarjetas
+  // del panorama, no desde una barra de indicadores duplicada.
+  VIEWS.filter((v) => v.type === "home" || v.type === "page").forEach((v) => {
     const btn = el("button", { class: "tab", role: "tab", id: `tab-${v.id}`, "aria-selected": String(v.id === state.active), "aria-controls": `view-${v.id}`, onclick: () => setView(v.id) }, v.label);
-    (v.secondary ? secondary : primary).append(btn);
+    row.append(btn);
   });
-  nav.append(primary, secondary);
+  nav.append(row);
 }
 
 function setView(id) {
@@ -192,6 +193,14 @@ function renderPanorama() {
   principalInds().forEach((ind) => grid.append(panoramaCard(ind)));
   sec.append(grid);
 
+  // Síntesis de coyuntura.
+  const syn = el("div", { class: "panel" });
+  syn.append(el("h3", {}, "Síntesis de coyuntura"));
+  const ul = el("ul", { class: "summary-list" });
+  coyunturaBullets().forEach((b) => ul.append(el("li", {}, el("span", { class: "mark" }), el("span", {}, b))));
+  syn.append(ul);
+  sec.append(syn);
+
   const cols = el("div", { class: "panorama-cols" });
 
   // Avances / Retrocesos / Señales.
@@ -225,13 +234,16 @@ function renderPanorama() {
   cols.append(next);
   sec.append(cols);
 
-  // Síntesis de coyuntura.
-  const syn = el("div", { class: "panel" });
-  syn.append(el("h3", {}, "Síntesis de coyuntura"));
-  const ul = el("ul", { class: "summary-list" });
-  coyunturaBullets().forEach((b) => ul.append(el("li", {}, el("span", { class: "mark" }), el("span", {}, b))));
-  syn.append(ul);
-  sec.append(syn);
+  // Accesos secundarios (incluye Entorno financiero para no dejarlo huérfano
+  // tras retirar la barra de indicadores).
+  const accesos = el("nav", { class: "accesos", "aria-label": "Accesos secundarios" });
+  [
+    ["entorno", "Entorno financiero"],
+    ["calendario", "Calendario de publicaciones"],
+    ["metodologia", "Fuentes y metodología"],
+    ["descargas", "Descargas"],
+  ].forEach(([id, label]) => accesos.append(el("a", { class: "acceso-link", href: `#${id}`, onclick: (e) => { e.preventDefault(); setView(id); } }, label)));
+  sec.append(accesos);
 }
 
 function movList(title, items, cls) {
