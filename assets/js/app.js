@@ -260,6 +260,27 @@ function indicatorToolbar(key) {
   return bar;
 }
 
+// Fecha exacta de publicación del dato (solo si no es una descripción de rezago).
+function fechaPubDato(ind) {
+  const v = ind.fecha_publicacion || "";
+  return (v && !/aproximad/i.test(v)) ? v : null;
+}
+// Rezago habitual de publicación (texto declarativo del calendario de difusión).
+function rezagoHabitual(ind) { return ind.publicacion || (/aproximad/i.test(ind.fecha_publicacion || "") ? ind.fecha_publicacion : null); }
+
+// Tabla compacta Componente | Estado para indicadores sin serie confirmada.
+function componentStatusTable(title, components) {
+  const box = el("div", { class: "ficha-block" });
+  box.append(el("h3", { class: "block-sub" }, title));
+  const table = el("table");
+  table.append(el("thead", {}, el("tr", {}, el("th", {}, "Componente"), el("th", {}, "Estado"))));
+  const tb = el("tbody");
+  components.forEach((c) => tb.append(el("tr", {}, el("td", {}, c), el("td", {}, "Pendiente de conexión"))));
+  table.append(tb);
+  box.append(el("div", { class: "table-wrap", style: "max-height:none;border:none" }, table));
+  return box;
+}
+
 function fichaHeader(ind) {
   const head = el("div", { class: "ficha-head" });
   const left = el("div", {},
@@ -269,9 +290,10 @@ function fichaHeader(ind) {
   const meta = el("div", { class: "fh-meta" });
   const rows = [
     ["Periodo de referencia", ind.periodo_referencia || ind.last_observation || "—"],
-    ["Fecha de publicación", ind.fecha_publicacion || "—"],
-    ["Fecha de actualización", ind.last_updated || "—"],
-    ["Fuente", ind.fuente?.nombre || "—"],
+    ["Fecha de publicación del dato", fechaPubDato(ind) || "no disponible en la base actual"],
+    ["Rezago habitual", rezagoHabitual(ind) || "—"],
+    ["Fecha de actualización del archivo", ind.last_updated || "—"],
+    ["Fuente oficial", ind.fuente?.nombre || "—"],
   ];
   const np = nextPublication(ind.key);
   if (np) rows.push(["Próxima publicación", `${np.fecha_publicacion} · ${np.periodo_referencia}`]);
@@ -285,7 +307,7 @@ function fichaHeader(ind) {
 const arrow = (mag) => (mag == null ? "■" : (mag > 0.0001 ? "▲" : (mag < -0.0001 ? "▼" : "■")));
 // Color por evaluación económica (no clasifica dirección como buena/mala salvo lectura clara).
 function assessColor(assessment) {
-  return assessment === "favorable" ? "#1e6b4f" : (assessment === "adverso" ? "#9b2247" : "#6b6f68");
+  return assessment === "favorable" ? "#1e5b4f" : (assessment === "adverso" ? "#9b2247" : "#6b6f68");
 }
 
 // Encabezado institucional de la ficha para impresión (solo print).
@@ -299,8 +321,9 @@ function fichaPrintHead(ind, k) {
   const src = ind.fuente?.nombre || "INEGI";
   const meta = [
     `Periodo de referencia: ${ind.periodo_referencia || per}`,
-    `Fecha de publicación: ${ind.fecha_publicacion || "—"}`,
-    `Fuente: ${src}`,
+    `Fecha de publicación del dato: ${fechaPubDato(ind) || "no disponible en la base actual"}`,
+    rezagoHabitual(ind) ? `Rezago habitual: ${rezagoHabitual(ind)}` : null,
+    `Fuente oficial: ${src}`,
     ESTADOS[ind.estado] ? `Estado: ${ESTADOS[ind.estado].short}` : null,
     np ? `Próxima publicación: ${np.fecha_publicacion}` : null,
   ].filter(Boolean).join("  |  ");
@@ -312,7 +335,7 @@ function fichaPrintHead(ind, k) {
 function fichaVarBlocks(ind, k, cfg, yoy) {
   const wrap = el("div", { class: "print-varblocks print-only" });
   const block = (lbl, text, mag, note, assessment) => {
-    const color = assessment != null ? assessColor(assessment) : (mag == null ? "#6b6f68" : (mag >= 0 ? "#1e6b4f" : "#9b2247"));
+    const color = assessment != null ? assessColor(assessment) : (mag == null ? "#6b6f68" : (mag >= 0 ? "#1e5b4f" : "#9b2247"));
     return el("div", { class: "pvb" },
       el("div", { class: "pvb-lbl" }, lbl),
       el("div", { class: "pvb-val", style: `color:${color}` }, `${arrow(mag)} ${text}`),
@@ -355,6 +378,7 @@ function renderIndicatorView(key) {
   if (!hasData(ind)) {
     panel.append(fichaPrintHead(ind, null));
     panel.append(el("div", { class: "notice" }, `Este indicador todavía no tiene observaciones cargadas. Estado: ${ind.estado}. ${ind.requiere_token ? `Se activará al configurar ${ind.requiere_token}_TOKEN y confirmar la serie oficial.` : "Se incorporará con el pipeline."} No se muestran cifras estimadas ni inventadas.`));
+    if (ind.key === "EMIM") panel.append(componentStatusTable("Componentes de la EMIM", ["Producción", "Personal ocupado", "Horas trabajadas", "Remuneraciones"]));
     if (ind.fuente?.link) panel.append(el("p", {}, el("a", { href: ind.fuente.link, target: "_blank", rel: "noopener" }, "Consultar fuente oficial ↗")));
     sec.append(panel);
     return;
@@ -394,12 +418,17 @@ function renderIndicatorView(key) {
   syn.append(el("h3", { class: "block-sub" }, "Evolución reciente"));
   const bullets = analysis(ind, k);
   syn.append(el("p", { class: "prose" }, bullets[0]));
-  if (bullets[1]) { syn.append(el("h3", { class: "block-sub" }, "Principales resultados")); syn.append(el("p", { class: "prose" }, bullets[1])); }
+  const results = bullets[1]
+    ? el("div", { class: "ficha-block print-highlight" },
+        el("h3", { class: "block-sub" }, "Principales resultados"),
+        el("p", { class: "prose" }, bullets[1]))
+    : null;
 
   // Segunda página en impresión: análisis, desglose y tabla de datos.
   // En pantalla el análisis va tras la gráfica; en impresión se agrupa en la 2ª página.
   const page2 = el("div", { class: "ficha-page2" });
   page2.append(syn);
+  if (results) page2.append(results);
 
   // Desglose (breakdown) por componentes cuando aplica
   const bd = breakdown(ind, k);
@@ -731,15 +760,18 @@ function updatePrintFooter() {
   const ind = getInd(state.active);
   if (ind && PRINCIPAL.includes(state.active)) {
     const np = nextPublication(state.active);
+    const sg = SIGLA[state.active];
+    const nombreSigla = ind.nombre.includes(`(${sg})`) ? ind.nombre : `${ind.nombre} (${sg})`;
     const parts = [
-      `${ind.nombre} (${SIGLA[state.active]})`,
+      nombreSigla,
       `Fuente: ${ind.fuente?.nombre || "INEGI"}`,
+      `Periodo de referencia: ${ind.periodo_referencia || ind.last_observation || "—"}`,
       np ? `Próxima publicación: ${np.fecha_publicacion}` : null,
-      "Documento de consulta; no constituye asesoría de inversión.",
+      "Documento de trabajo para consulta y seguimiento estadístico.",
     ].filter(Boolean);
     foot.textContent = parts.join("  ·  ");
   } else {
-    foot.textContent = "Elaborado con información oficial. Documento de consulta; no constituye asesoría de inversión.";
+    foot.textContent = "Documento de trabajo para consulta y seguimiento estadístico.";
   }
 }
 

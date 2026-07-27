@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-20T15:14:35+00:00",
+  "generated_at": "2026-07-27T15:52:06+00:00",
   "indicadores": [
     {
       "indicador": "Producto Interno Bruto",
@@ -50,7 +50,7 @@
       "observaciones": ""
     },
     {
-      "indicador": "Indicador Global de Actividad Económica (IGAE)",
+      "indicador": "Indicador Global de la Actividad Económica",
       "clave": "IGAE",
       "clasificacion": "principal",
       "fuente": "INEGI",

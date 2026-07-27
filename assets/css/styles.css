@@ -183,6 +183,7 @@ td.cal-cell.empty { background: #f6f4ec; }
 .win-btn[aria-pressed="true"] { background: var(--green); color: #fff; border-color: var(--green); }
 
 .ficha-block { margin-top: 18px; }
+.print-highlight { background: #f0ece1; border: 1px solid var(--line-soft); border-left: 4px solid var(--gold, #a57f2c); border-radius: 8px; padding: 12px 16px; }
 .block-sub { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--dkgreen); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line-soft); }
 .prose { font-size: 14.5px; line-height: 1.6; color: #2c302b; text-align: justify; }
 
@@ -274,15 +275,20 @@ tbody tr:last-child td { font-weight: 600; color: var(--dkgreen); }
   th, td { padding: 3pt 6pt; }
   a { color: #000; text-decoration: none; }
 
+  /* Recuadro marfil para "Principales resultados" */
+  .print-highlight { background: #f4f1e7; border: .5pt solid #cbcbcb; border-left: 3pt solid var(--gold, #a57f2c); padding: 5pt 8pt; margin-top: 6pt; }
+  /* Espaciado vertical compacto para aprovechar la primera página */
+  .ficha-block { margin-top: 6pt; }
+
   /* Encabezado institucional de la ficha (estilo Nota) */
-  .ficha-print-head { margin-bottom: 8pt; }
+  .ficha-print-head { margin-bottom: 6pt; }
   .ficha-print-head .fph-bar { background: var(--dkgreen); color: #f0ece1; padding: 6pt 9pt; border-left: 4pt solid var(--gold, #a57f2c); }
   .ficha-print-head .fph-title { font-family: var(--serif); font-size: 14pt; font-weight: 600; line-height: 1.1; }
   .ficha-print-head .fph-sub { font-family: var(--mono); font-size: 9pt; opacity: .9; margin-top: 1pt; }
   .ficha-print-head .fph-meta { font-size: 8pt; color: #444; padding: 4pt 2pt 0; border-bottom: .5pt solid #bbb; }
 
   /* Bloques principales de variación (▲/▼) */
-  .print-varblocks { display: flex; gap: 8pt; margin: 8pt 0; page-break-inside: avoid; }
+  .print-varblocks { display: flex; gap: 8pt; margin: 6pt 0; page-break-inside: avoid; }
   .print-varblocks .pvb { flex: 1; border: .75pt solid #cbcbcb; border-top: 2.5pt solid var(--dkgreen); padding: 5pt 7pt; }
   .print-varblocks .pvb-lbl { font-family: var(--mono); font-size: 7.5pt; text-transform: uppercase; letter-spacing: .04em; color: #555; }
   .print-varblocks .pvb-val { font-size: 17pt; font-weight: 700; line-height: 1.1; margin: 2pt 0; }

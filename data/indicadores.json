@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-07-20T15:14:35+00:00",
+    "generated_at": "2026-07-27T15:52:06+00:00",
     "base_year": 2018,
     "default_window": "since_2018",
     "windows": [
@@ -397,7 +397,7 @@
     },
     "IGAE": {
       "key": "IGAE",
-      "nombre": "Indicador Global de Actividad Económica (IGAE)",
+      "nombre": "Indicador Global de la Actividad Económica",
       "descripcion": "Se le conoce como una aproximación al PIB mensual, permitiendo conocer la tendencia de la economía en el corto plazo. Sigue la evolución del sector real de la economía con un diseño similar al PIB, pero con menos información detallada.",
       "frecuencia": "Mensual",
       "unidad": "Índice base 2018=100",

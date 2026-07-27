@@ -151,6 +151,9 @@ def apply_profile(payload: dict, meta_file: Path = META_FILE) -> list[str]:
         ind["requiere_token"] = prof.get("requiere_token")
         ind["serie_confirmada"] = prof.get("serie_confirmada", False)
         ind["clasificacion"] = prof.get("clasificacion", "principal")
+        if prof.get("nombre") and prof["nombre"] != ind.get("nombre"):
+            log.append(f"nombre override {key}: {ind.get('nombre')} -> {prof['nombre']}")
+            ind["nombre"] = prof["nombre"]
 
     # 3) Estado honesto por indicador.
     for key, ind in inds.items():
