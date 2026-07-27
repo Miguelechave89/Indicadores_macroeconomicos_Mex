@@ -12,8 +12,12 @@ export function fmtVal(v, fmt) {
     case "num":
     case "usd":
       return Math.round(v).toLocaleString("es-MX");
+    case "bill":
+      return (v / 1e6).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " billones de pesos";
     case "idx":
       return v.toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    case "fx":
+      return "$" + v.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     case "pct-frac":
       return (v * 100).toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
     case "pct-raw":

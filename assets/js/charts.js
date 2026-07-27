@@ -2,7 +2,9 @@
 import { COLORS, WINDOWS } from "./config.js";
 import { periodToDate } from "./format.js";
 
-const G = COLORS.GREEN, Go = COLORS.GOLD, S = COLORS.WINE, LG = COLORS.LTGREEN, INK = COLORS.INK, TEAL = COLORS.TEAL;
+// Homologación institucional: principal=verde, secundaria=guinda,
+// tercera=dorado, referencia/promedio/límites=gris, alerta negativa=guinda oscuro.
+const G = COLORS.GREEN, SEC = COLORS.CRIMSON, Go = COLORS.GOLD, REF = COLORS.GRAY, INK = COLORS.INK;
 
 // Filtra las observaciones de un indicador según la ventana temporal.
 export function applyWindow(ind, windowId) {
@@ -25,15 +27,19 @@ function chartSpec(ind, obs) {
   const totalSec = obs.map((o) => { const [a, b, c] = o.values; return (a == null && b == null && c == null) ? null : (a || 0) + (b || 0) + (c || 0); });
   const saldo = obs.map((o) => (o.values[0] != null && o.values[1] != null) ? o.values[0] - o.values[1] : null);
   switch (ind.key) {
-    case "PIB": return { periods: P, bars: [{ name: "PIB (millones de pesos)", values: col(0), color: G }], lines: [{ name: "Var. anual (%)", values: col(1).map((v) => v == null ? null : v * 100), color: Go, axis: "right" }], leftName: "Millones de pesos", rightName: "Var. anual (%)", leftFmt: "compact", rightFmt: "pct" };
-    case "PIBSEC": return { periods: P, stack: "pib", bars: [{ name: "Primarias", values: col(0), color: LG }, { name: "Secundarias", values: col(1), color: Go }, { name: "Terciarias", values: col(2), color: G }], lines: [{ name: "Var. trim. terciarias (%)", values: col(3).map((v) => v == null ? null : v * 100), color: S, axis: "right" }], leftName: "Millones de pesos", rightName: "Var. trim. (%)", leftFmt: "compact", rightFmt: "pct" };
-    case "IGAE": return { periods: P, lines: [{ name: "Índice global", values: col(0), color: G }, { name: "Act. secundarias", values: col(1), color: Go }, { name: "Act. terciarias", values: col(2), color: TEAL }], leftName: "Índice (2018=100)", leftFmt: "idx" };
-    case "IMAI": return { periods: P, lines: [{ name: "Índice de volumen físico", values: col(0), color: G }, { name: "Var. mensual (%)", values: col(1).map((v) => v == null ? null : v * 100), color: Go, axis: "right" }], leftName: "Índice (2018=100)", rightName: "Var. mensual (%)", leftFmt: "idx", rightFmt: "pct" };
-    case "CONSUMO": return { periods: P, lines: [{ name: "Índice de volumen físico", values: col(0), color: G }, { name: "Var. mensual (%)", values: col(1).map((v) => v == null ? null : v * 100), color: Go, axis: "right" }], leftName: "Índice (2018=100)", rightName: "Var. mensual (%)", leftFmt: "idx", rightFmt: "pct" };
-    case "INPC": return { periods: P, lines: [{ name: "Inflación", values: col(0), color: G }, { name: "Subyacente", values: col(1), color: Go }, { name: "No subyacente", values: col(2), color: S }], leftName: "Variación anual (%)", leftFmt: "pct" };
-    case "DESOCUP": return { periods: P, lines: [{ name: "Tasa de desocupación (México)", values: col(0).map((v) => v == null ? null : v * 100), color: Go }, { name: "Promedio OCDE (4.9%)", values: P.map(() => 4.9), color: S, dash: true }], leftName: "Porcentaje (%)", leftFmt: "pct" };
-    case "IED": return { periods: P, stack: "ied", bars: [{ name: "Nuevas inversiones", values: col(1), color: G }, { name: "Reinversión de utilidades", values: col(2), color: Go }, { name: "Cuentas entre compañías", values: col(3), color: S }], lines: [{ name: "IED total", values: col(0), color: INK, dash: true }], leftName: "Millones de dólares", leftFmt: "compact" };
-    case "BALANZA": return { periods: P, bars: [{ name: "Exportaciones", values: col(0), color: G }, { name: "Importaciones", values: col(1), color: Go }], lines: [{ name: "Saldo (X − M)", values: saldo, color: S, axis: "right" }], leftName: "Millones de dólares", rightName: "Saldo (mdd)", leftFmt: "compact", rightFmt: "compact" };
+    case "PIB": return { periods: P, bars: [{ name: "PIB (millones de pesos)", values: col(0), color: G }], lines: [{ name: "Var. anual (%)", values: col(1).map((v) => v == null ? null : v * 100), color: SEC, axis: "right" }], leftName: "Millones de pesos", rightName: "Var. anual (%)", leftFmt: "compact", rightFmt: "pct" };
+    case "PIBSEC": return { periods: P, stack: "pib", bars: [{ name: "Primarias", values: col(0), color: G }, { name: "Secundarias", values: col(1), color: SEC }, { name: "Terciarias", values: col(2), color: Go }], lines: [{ name: "Var. trim. terciarias (%)", values: col(3).map((v) => v == null ? null : v * 100), color: REF, axis: "right" }], leftName: "Millones de pesos", rightName: "Var. trim. (%)", leftFmt: "compact", rightFmt: "pct" };
+    case "IGAE": return { periods: P, lines: [{ name: "Índice global", values: col(0), color: G }, { name: "Act. secundarias", values: col(1), color: SEC }, { name: "Act. terciarias", values: col(2), color: Go }], leftName: "Índice (2018=100)", leftFmt: "idx" };
+    case "IMAI": return { periods: P, lines: [{ name: "Índice de volumen físico", values: col(0), color: G }, { name: "Var. mensual (%)", values: col(1).map((v) => v == null ? null : v * 100), color: SEC, axis: "right" }], leftName: "Índice (2018=100)", rightName: "Var. mensual (%)", leftFmt: "idx", rightFmt: "pct" };
+    case "CONSUMO": return { periods: P, lines: [{ name: "Índice de volumen físico", values: col(0), color: G }, { name: "Var. mensual (%)", values: col(1).map((v) => v == null ? null : v * 100), color: SEC, axis: "right" }], leftName: "Índice (2018=100)", rightName: "Var. mensual (%)", leftFmt: "idx", rightFmt: "pct" };
+    case "INPC": return { periods: P, lines: [{ name: "Inflación", values: col(0), color: G }, { name: "Subyacente", values: col(1), color: SEC }, { name: "No subyacente", values: col(2), color: Go }], leftName: "Variación anual (%)", leftFmt: "pct" };
+    case "DESOCUP": return { periods: P, lines: [{ name: "Tasa de desocupación nacional", values: col(0).map((v) => v == null ? null : v * 100), color: G }], leftName: "Porcentaje (%)", leftFmt: "pct" };
+    case "IED": return { periods: P, stack: "ied", bars: [{ name: "Nuevas inversiones", values: col(1), color: G }, { name: "Reinversión de utilidades", values: col(2), color: SEC }, { name: "Cuentas entre compañías", values: col(3), color: Go }], lines: [{ name: "IED total", values: col(0), color: REF, dash: true }], leftName: "Millones de dólares", leftFmt: "compact" };
+    case "BALANZA": return { periods: P, bars: [{ name: "Exportaciones", values: col(0), color: G }, { name: "Importaciones", values: col(1), color: SEC }], lines: [{ name: "Saldo (X − M)", values: saldo, color: Go, axis: "right" }], leftName: "Millones de dólares", rightName: "Saldo (mdd)", leftFmt: "compact", rightFmt: "compact" };
+    case "IMFBCF": return { periods: P, lines: [{ name: "Índice (inversión)", values: col(0), color: G }, { name: "Var. mensual (%)", values: col(1).map((v) => v == null ? null : v * 100), color: SEC, axis: "right" }], leftName: "Índice (2018=100)", rightName: "Var. mensual (%)", leftFmt: "idx", rightFmt: "pct" };
+    case "EMIM": return { periods: P, lines: [{ name: "Producción (índice)", values: col(0), color: G }, { name: "Var. mensual (%)", values: col(1).map((v) => v == null ? null : v * 100), color: SEC, axis: "right" }], leftName: "Índice", rightName: "Var. mensual (%)", leftFmt: "idx", rightFmt: "pct" };
+    case "IOAE": return { periods: P, lines: [{ name: "Estimación puntual (%)", values: col(0), color: G }, { name: "Límite inferior", values: col(1), color: REF, dash: true }, { name: "Límite superior", values: col(2), color: REF, dash: true }], leftName: "Variación mensual (%)", leftFmt: "pct" };
+    case "RESERVAS": return { periods: P, lines: [{ name: "Reservas internacionales", values: col(0), color: G }], leftName: "Millones de dólares", leftFmt: "compact" };
     case "TIPOCAMBIO": return { periods: P, lines: [{ name: "Tipo de cambio FIX", values: col(0), color: G }], leftName: "Pesos por dólar", leftFmt: "idx" };
     case "TASA": return { periods: P, lines: [{ name: "Tasa objetivo (%)", values: col(0), color: G }], leftName: "Porcentaje (%)", leftFmt: "pct" };
     default: return { periods: P, lines: [{ name: ind.nombre, values: col(0), color: G }], leftName: "", leftFmt: "num" };
@@ -115,7 +121,7 @@ export function buildOption(ind, windowId) {
 
   const rotate = spec.periods.length > 12;
   return {
-    color: [G, Go, S, TEAL, LG, INK],
+    color: [G, SEC, Go, REF, COLORS.DKGREEN, COLORS.WINE],
     animation: false,
     grid: { left: 66, right: hasRight ? 62 : 24, top: 44, bottom: rotate ? 64 : 44, containLabel: false },
     legend: {

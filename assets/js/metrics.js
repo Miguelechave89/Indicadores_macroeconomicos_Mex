@@ -28,7 +28,7 @@ function proseVal(ind, v) {
   if (v == null) return "—";
   const k = ind.key;
   const money = (x, u) => (x < 0 ? "−$" : "$") + Math.abs(Math.round(x)).toLocaleString("es-MX") + " " + u;
-  if (k === "PIB" || k === "PIBSEC") return money(v, "millones de pesos");
+  if (k === "PIB" || k === "PIBSEC") return (v / 1e6).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " billones de pesos";
   if (k === "IED" || k === "BALANZA") return money(v, "millones de dólares");
   if (k === "IGAE" || k === "IMAI" || k === "CONSUMO") return v.toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " puntos";
   if (k === "DESOCUP") return (v * 100).toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
@@ -67,7 +67,8 @@ function computeVar(ind, cfg, vals, lastI, prevI) {
   if (cfg.varMode === "pp-prev" && prevI != null && vals[prevI] != null) {
     let d = cur - vals[prevI];
     if (cfg.valFmt === "pct-frac") d *= 100;
-    return { mag: d, text: (d >= 0 ? "+" : "") + d.toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " pp", pos: d >= 0 };
+    const unit = cfg.ppLong ? " puntos porcentuales" : " pp";
+    return { mag: d, text: (d >= 0 ? "+" : "") + d.toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + unit, pos: d >= 0 };
   }
   if (cfg.varMode === "abs-prev" && prevI != null && vals[prevI] != null) {
     const d = cur - vals[prevI];
@@ -88,16 +89,17 @@ export function computeKPI(ind) {
   const varInfo = computeVar(ind, cfg, vals, lastI, prevI);
   let maxI = idxs[0], minI = idxs[0];
   idxs.forEach((i) => { if (vals[i] > vals[maxI]) maxI = i; if (vals[i] < vals[minI]) minI = i; });
-  // Semáforo: verde/ámbar/rojo según signo de variación y "goodSign".
-  let semaforo = "neutral";
-  if (varInfo.mag != null && cfg.goodSign !== 0) {
-    const good = cfg.goodSign > 0 ? varInfo.mag > 0.05 : varInfo.mag < -0.05;
-    const bad = cfg.goodSign > 0 ? varInfo.mag < -0.05 : varInfo.mag > 0.05;
-    semaforo = good ? "bueno" : (bad ? "malo" : "estable");
-  } else if (varInfo.mag != null) {
-    semaforo = "estable";
-  }
+  // Evaluación del movimiento SOLO cuando es económicamente claro.
+  // assess: "growth" (subir favorable) | "unemployment" (bajar favorable) | "neutral".
+  const assess = cfg.assess || (cfg.goodSign > 0 ? "growth" : cfg.goodSign < 0 ? "unemployment" : "neutral");
+  const dir = varInfo.mag == null ? "flat" : (varInfo.mag > 0.05 ? "up" : (varInfo.mag < -0.05 ? "down" : "flat"));
+  let assessment = "neutral"; // favorable | adverso | neutral
+  if (varInfo.mag != null && assess === "growth") assessment = dir === "up" ? "favorable" : (dir === "down" ? "adverso" : "neutral");
+  else if (varInfo.mag != null && assess === "unemployment") assessment = dir === "down" ? "favorable" : (dir === "up" ? "adverso" : "neutral");
+  // semáforo derivado (para el punto de color): favorable=bueno, adverso=malo, resto=neutral/estable.
+  let semaforo = assessment === "favorable" ? "bueno" : (assessment === "adverso" ? "malo" : (varInfo.mag == null ? "neutral" : "estable"));
   return {
+    assessment, dir,
     ultimoFmt: fmtVal(ultimo, cfg.valFmt), ultimoRaw: ultimo, ultimoP: P[lastI],
     varText: varInfo.text, varMag: varInfo.mag, pos: varInfo.pos,
     varColor: varInfo.pos ? COLORS.GREEN : COLORS.CRIMSON,
@@ -112,7 +114,7 @@ function varValFmt(mag, cfg) {
   if (mag == null) return "—";
   const s = mag > 0 ? "+" : "";
   if (cfg.varMode === "abs-prev") return s + Math.round(mag).toLocaleString("es-MX") + " mdd";
-  if (cfg.varMode === "pp-prev") return s + mag.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " pp";
+  if (cfg.varMode === "pp-prev") { const d = cfg.ppLong ? 1 : 2; return s + mag.toLocaleString("es-MX", { minimumFractionDigits: d, maximumFractionDigits: d }) + (cfg.ppLong ? " puntos porcentuales" : " pp"); }
   return s + mag.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%";
 }
 
@@ -126,6 +128,23 @@ function varAt(ind, cfg, vals, idx) {
   if (cfg.varMode === "pp-prev") { const b = vals[idx - 1]; if (a == null || b == null) return null; let d = a - b; if (cfg.valFmt === "pct-frac") d *= 100; return d; }
   if (cfg.varMode === "abs-prev") { const b = vals[idx - 1]; if (a == null || b == null) return null; return a - b; }
   return null;
+}
+
+// Variación anual (interanual) del nivel de la serie primaria, para la matriz.
+// Devuelve {text,pos,mag} o null si no es aplicable/insuficiente historia.
+export function annualVar(ind, k) {
+  const cfg = KPICFG[ind.key];
+  // No se calcula variación anual del nivel cuando: (a) el valor ya es una tasa,
+  // (b) la variación primaria ya es interanual (evita duplicar), o
+  // (c) la interanual del saldo no tiene lectura económica clara.
+  if (["INPC", "TASA", "DESOCUP", "IOAE", "PIB", "IED", "BALANZA"].includes(ind.key)) return null;
+  const vals = k.series;
+  const lag = ind.frecuencia === "Trimestral" ? 4 : 12;
+  const cur = vals[k.lastI];
+  const base = vals[k.lastI - lag];
+  if (cur == null || base == null || base === 0) return null;
+  const d = (cur - base) / Math.abs(base) * 100;
+  return { mag: d, pos: d >= 0, text: (d >= 0 ? "+" : "") + d.toLocaleString("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" };
 }
 
 // Genera 2-3 bullets de análisis determinista, auditables.
@@ -170,23 +189,45 @@ export function analysis(ind, k) {
     else trend = "una tasa de referencia sin cambios";
   }
   const sameRound = proseVal(ind, k.ultimoRaw) === proseVal(ind, promedio);
-  const avgPhrase = sameRound ? "en línea con su promedio histórico" : ((k.ultimoRaw > promedio ? "por encima" : "por debajo") + " de su promedio histórico");
+  const avgPhrase = sameRound ? "en línea con el promedio del periodo mostrado" : ((k.ultimoRaw > promedio ? "por encima" : "por debajo") + " del promedio del periodo mostrado");
   const art = cfg.vg === "m" ? "un" : "una";
   const prevClause = (prevVar != null && cfg.grupo !== "balanza") ? ` respecto ${respFrase(prevP)} (${varValFmt(prevVar, cfg)})` : (prevVar != null ? ` respecto ${respFrase(prevP)}` : "");
 
-  let b1 = `En ${enFrase(k.ultimoP)}, ${cfg.art} ${cfg.noun} se ubicó en ${proseVal(ind, k.ultimoRaw)}${cfg.ctx}, con ${art} ${cfg.vw}${magAdj ? " " + magAdj : ""} de ${varValFmt(curVar, cfg)} ${cfg.comp}.`;
-  b1 += ` Este resultado refleja ${trend}${prevClause}, y deja al indicador ${avgPhrase} de ${proseVal(ind, promedio)}.`;
+  // La serie original con lectura por grupo aporta el matiz en la 2ª frase;
+  // se omite el adjetivo aquí para no duplicarlo.
+  const skelMagAdj = (cfg.grupo === "growth" && ORIG) ? "" : magAdj;
+  let b1 = `En ${enFrase(k.ultimoP)}, ${cfg.art} ${cfg.noun} se ubicó en ${proseVal(ind, k.ultimoRaw)}${cfg.ctx}, con ${art} ${cfg.vw}${skelMagAdj ? " " + skelMagAdj : ""} de ${varValFmt(curVar, cfg)} ${cfg.comp}.`;
+  // Segunda frase de b1: lectura prudente por grupo (sin adjetivos de tendencia
+  // automatizados; advierte sobre la serie original cuando corresponde).
+  let read;
+  if (cfg.grupo === "growth" && ORIG) {
+    if (ind.frecuencia === "Trimestral") {
+      read = `El crecimiento anual fue ${magAdj || "marginal"}. La comparación entre trimestres debe considerar el comportamiento estacional de la serie original.`;
+    } else {
+      const verb = curVar == null ? "se mantuvo sin cambio" : (curVar > 0.05 ? "aumentó" : (curVar < -0.05 ? "disminuyó" : "se mantuvo prácticamente sin cambio"));
+      read = `El índice original ${verb} respecto del mes previo. Esta comparación incorpora efectos estacionales y debe complementarse con la serie desestacionalizada.`;
+    }
+  } else if (cfg.grupo === "inpc") {
+    const verb = curVar == null ? "se mantuvo" : (curVar > 0.001 ? "aumentó" : (curVar < -0.001 ? "disminuyó" : "no cambió"));
+    read = `La inflación anual ${verb} respecto del mes previo. Se ubicó ${avgPhrase} (${proseVal(ind, promedio)}).`;
+  } else {
+    read = `Este resultado refleja ${trend}${prevClause}, y deja al indicador ${avgPhrase} de ${proseVal(ind, promedio)}.`;
+  }
+  b1 += " " + read;
 
-  const range = k.maxRaw - k.minRaw;
-  const pp = range > 0 ? (k.ultimoRaw - k.minRaw) / range * 100 : 50;
-  const sit = pp >= 82 ? "muy cerca de su nivel máximo" : (pp >= 58 ? "en la zona alta de su rango" : (pp <= 18 ? "muy cerca de su nivel mínimo" : (pp <= 42 ? "en la zona baja de su rango" : "en torno a la media de su rango")));
   const tail = valid.slice(-4);
   let dir = "lateral";
   if (tail.length >= 2) { const ch = tail[tail.length - 1] - tail[0], rel = Math.abs(ch) / (Math.abs(tail[0]) || 1); if (rel >= 0.01) dir = ch > 0 ? "ascendente" : "descendente"; }
-  const concl = dir === "ascendente" ? "sugiere una recuperación reciente" : (dir === "descendente" ? "apunta a una pérdida de tracción en el margen" : "refleja una fase de estabilización");
-  let traj = `el registro más reciente se ubica ${sit} y describe una trayectoria reciente ${dir}, lo que ${concl}`;
-  if (ORIG && dir !== "lateral") traj += ", si bien este movimiento debe leerse con cautela porque la serie original incorpora efectos estacionales";
-  const b2 = `A lo largo de la serie disponible, el indicador ha oscilado entre un máximo de ${proseVal(ind, k.maxRaw)} (${perLong(k.maxP)}) y un mínimo de ${proseVal(ind, k.minRaw)} (${perLong(k.minP)}); ${traj}.`;
+  const posAvg = k.ultimoRaw > promedio ? "por encima del promedio del periodo mostrado" : (k.ultimoRaw < promedio ? "por debajo del promedio del periodo mostrado" : "en línea con el promedio del periodo mostrado");
+  const extremo = k.ultimoRaw === k.maxRaw ? " y fue el registro más alto de la serie mostrada" : (k.ultimoRaw === k.minRaw ? " y fue el registro más bajo de la serie mostrada" : "");
+  let cmp = "";
+  if (tail.length >= 2) {
+    cmp = dir === "lateral" ? " El último dato se mantuvo cercano al del inicio del periodo mostrado."
+      : (dir === "ascendente" ? " El último dato fue superior al del inicio del periodo mostrado."
+        : " El último dato fue inferior al del inicio del periodo mostrado.");
+  }
+  let b2 = `A lo largo de la serie mostrada, el indicador osciló entre un máximo de ${proseVal(ind, k.maxRaw)} (${perLong(k.maxP)}) y un mínimo de ${proseVal(ind, k.minRaw)} (${perLong(k.minP)}). El resultado más reciente se ubicó ${posAvg}${extremo}.${cmp}`;
+  if (ORIG && dir !== "lateral") b2 += " Esta comparación se realiza sobre la serie original, que incorpora efectos estacionales.";
 
   let extra = "";
   if (ind.key === "INPC") {
@@ -204,7 +245,7 @@ export function analysis(ind, k) {
     const sup = k.ultimoRaw >= 0;
     extra = ` El saldo del último mes corresponde a un ${sup ? "superávit comercial, con exportaciones por encima de las importaciones" : "déficit comercial, con importaciones por encima de las exportaciones"}.`;
   } else if (ind.key === "DESOCUP") {
-    extra = " En perspectiva, la tasa se mantiene en niveles históricamente bajos para la economía mexicana y por debajo del promedio de desempleo de la OCDE (4.9%), lo que ubica a México entre las economías con menor tasa de desocupación del organismo.";
+    extra = " La tasa se mantiene en niveles históricamente bajos para la economía mexicana. Su lectura debe acompañarse de la población ocupada y de las condiciones de informalidad, que la tasa de desocupación por sí sola no captura.";
   }
   return [b1, b2 + extra];
 }
