@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-07-29T21:25:45+00:00",
+    "generated_at": "2026-07-29T22:11:22+00:00",
     "base_year": 2018,
     "default_window": "since_2018",
     "windows": [
@@ -412,8 +412,9 @@
       ],
       "fuente": {
         "nombre": "INEGI",
-        "link": "https://www.inegi.org.mx/app/indicadores/?tm=3#D733671_600917",
-        "metodo": "INEGI BIE API"
+        "link": "https://www.inegi.org.mx/app/indicadores/?tm=3&t=1090#D737121",
+        "metodo": "INEGI BIE API",
+        "serie": "737121"
       },
       "columns": [
         {
@@ -436,7 +437,7 @@
         {
           "period": "May 25 R",
           "values": [
-            104.977621139718,
+            107.407876,
             104.4,
             106.8
           ]
@@ -444,7 +445,7 @@
         {
           "period": "Jun 25 R",
           "values": [
-            105.036749181744,
+            104.50353,
             100.87,
             107
           ]
@@ -452,7 +453,7 @@
         {
           "period": "Jul 25 R",
           "values": [
-            104.454057193007,
+            105.661466,
             101.58,
             106.9
           ]
@@ -460,7 +461,7 @@
         {
           "period": "Ago 25 R",
           "values": [
-            104.964729362259,
+            104.822875,
             101.39,
             107.4
           ]
@@ -468,7 +469,7 @@
         {
           "period": "Sep 25 R",
           "values": [
-            104.52708789217,
+            103.226895,
             99.56,
             107
           ]
@@ -476,7 +477,7 @@
         {
           "period": "Oct 25 R",
           "values": [
-            105.575132119142,
+            107.920791,
             104.81,
             108.2
           ]
@@ -484,7 +485,7 @@
         {
           "period": "Nov 25 R",
           "values": [
-            105.476142839221,
+            107.829456,
             101.45,
             107.8
           ]
@@ -492,7 +493,7 @@
         {
           "period": "Dic 25 R",
           "values": [
-            105.869089017849,
+            107.41679,
             98.38,
             108
           ]
@@ -500,7 +501,7 @@
         {
           "period": "Ene 26 R",
           "values": [
-            104.772484415695,
+            100.928378,
             96.62,
             107.4
           ]
@@ -508,7 +509,7 @@
         {
           "period": "Feb 26 R",
           "values": [
-            105.072620201876,
+            100.121986,
             95.8,
             107.5
           ]
@@ -516,7 +517,7 @@
         {
           "period": "Mar 26 P",
           "values": [
-            105.660228515201,
+            106.956932,
             102.75,
             108.5
           ]
@@ -524,24 +525,32 @@
         {
           "period": "Abr 26 P",
           "values": [
-            106.927124418255,
+            106.675953,
             102.52,
             109.2
           ]
+        },
+        {
+          "period": "May 26",
+          "values": [
+            108.595752,
+            null,
+            null
+          ]
         }
       ],
-      "last_observation": "Abr 26 P",
-      "last_updated": "2026-07-16",
-      "last_checked": "2026-07-16",
-      "source_origin": "legacy_dashboard",
+      "last_observation": "May 26",
+      "last_updated": "2026-07-29",
+      "last_checked": "2026-07-29",
+      "source_origin": "api",
       "requiere_token": "INEGI",
-      "serie_confirmada": false,
+      "serie_confirmada": true,
       "clasificacion": "principal",
-      "estado": "dato de respaldo vigente",
-      "origen_dato": "respaldo",
+      "estado": "actualizado automáticamente",
+      "origen_dato": "api",
       "fecha_publicacion": "Aproximadamente 55 días después de haber concluido el mes",
-      "periodo_referencia": "Abr 26 P",
-      "fecha_consulta": "2026-07-16"
+      "periodo_referencia": "May 26",
+      "fecha_consulta": "2026-07-29"
     },
     "IMAI": {
       "key": "IMAI",
@@ -1578,7 +1587,7 @@
       "requiere_token": "INEGI",
       "serie_confirmada": false,
       "clasificacion": "principal",
-      "estado": "pendiente de token",
+      "estado": "pendiente de confirmar serie",
       "origen_dato": "pendiente",
       "fecha_publicacion": "Aproximadamente 55 días tras el cierre del mes",
       "periodo_referencia": null,
@@ -1624,7 +1633,7 @@
       "requiere_token": "INEGI",
       "serie_confirmada": false,
       "clasificacion": "principal",
-      "estado": "pendiente de token",
+      "estado": "pendiente de confirmar serie",
       "origen_dato": "pendiente",
       "fecha_publicacion": "Fin de mes del periodo estimado",
       "periodo_referencia": null,
@@ -1665,7 +1674,7 @@
       "requiere_token": "INEGI",
       "serie_confirmada": false,
       "clasificacion": "principal",
-      "estado": "pendiente de token",
+      "estado": "pendiente de confirmar serie",
       "origen_dato": "pendiente",
       "fecha_publicacion": "Aproximadamente 40 días tras el cierre del mes",
       "periodo_referencia": null,
