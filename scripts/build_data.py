@@ -39,16 +39,83 @@ def merge_indicator(payload: dict, key: str, new_ind: dict) -> None:
         order.append(key)
 
 
+def apply_inegi_total(payload: dict, key: str, item: dict, prev_last: str | None) -> dict | None:
+    """Fusiona una serie del INEGI sobre UNA columna del indicador existente.
+
+    Actualiza sólo la columna objetivo (p. ej. el índice total del IGAE) con las
+    observaciones oficiales de la API, conservando el resto de columnas/desgloses
+    de respaldo. Agrega los periodos nuevos que la API tenga por encima del último
+    periodo mostrado. Devuelve el registro de consulta para el update_log, o None
+    si el indicador no existe en la capa de datos.
+    """
+    ind = payload["indicators"].get(key)
+    if ind is None:
+        return None
+
+    tcol = item["target_column"]
+    ncol = len(ind.get("columns") or []) or (tcol + 1)
+    api_by_ym = {o["ym"]: o["value"] for o in item["api_total"]}
+
+    rows: list[tuple[str, dict]] = []
+    existing_yms: list[str] = []
+    for o in ind.get("observations", []):
+        ym = inegi.label_to_ym(o.get("period", ""))
+        vals = list(o.get("values", []))
+        while len(vals) < ncol:
+            vals.append(None)
+        if ym is not None and ym in api_by_ym and 0 <= tcol < ncol:
+            vals[tcol] = round(api_by_ym[ym], 6)
+        rows.append((ym or o.get("period", ""), {**o, "values": vals}))
+        if ym is not None:
+            existing_yms.append(ym)
+
+    max_ym = max(existing_yms, default=None)
+    for o in item["api_total"]:
+        ym = o["ym"]
+        if max_ym is None or ym > max_ym:
+            vals = [None] * ncol
+            if 0 <= tcol < ncol:
+                vals[tcol] = round(o["value"], 6)
+            rows.append((ym, {"period": inegi.ym_to_label(ym), "values": vals}))
+
+    rows.sort(key=lambda t: t[0])
+    ind["observations"] = [o for _, o in rows]
+    ind["last_observation"] = ind["observations"][-1]["period"]
+    ind["last_updated"] = L.today_iso()
+    ind["last_checked"] = L.today_iso()
+    ind["source_origin"] = "api"
+    fuente = dict(ind.get("fuente", {}))
+    fuente["serie"] = item["serie"]
+    fuente["metodo"] = "INEGI BIE API"
+    if item.get("link"):
+        fuente["link"] = item["link"]
+    ind["fuente"] = fuente
+
+    meta = item.get("api_meta", {})
+    nueva = ind["last_observation"]
+    return {
+        "fuente": "inegi", "indicador": key, "serie": item["serie"],
+        "observaciones": meta.get("n_obs"), "ultima_observacion": nueva,
+        "ultimo_valor": meta.get("ultimo_valor"), "observacion_previa": prev_last,
+        "actualizacion_fuente": meta.get("lastupdate"),
+        "dato_nuevo": nueva != prev_last, "resultado": "consulta válida",
+    }
+
+
 def run(offline: bool = False) -> int:
     log = {"started_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-           "warnings": [], "changes": [], "critical": [], "mode": "offline" if offline else "online"}
+           "mode": "offline" if offline else "online",
+           "network_calls": False,
+           "warnings": [], "changes": [], "consultas": [], "critical": []}
 
     L.load_env()
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
     payload = L.load_data()
+    prev_obs = {k: v.get("last_observation") for k, v in payload.get("indicators", {}).items()}
 
     if not offline:
         for name, mod in (("banxico", banxico), ("inegi", inegi), ("worldbank", worldbank)):
+            log["network_calls"] = True
             try:
                 res = mod.fetch(config)
             except Exception as e:  # noqa: BLE001 - resiliencia total del pipeline
@@ -62,8 +129,31 @@ def run(offline: bool = False) -> int:
                 continue
             if res.ok:
                 for key, ind in res.data.items():
-                    merge_indicator(payload, key, ind)
-                    log["changes"].append(f"{name}: actualizado {key}")
+                    if name == "inegi":
+                        consulta = apply_inegi_total(payload, key, ind, prev_obs.get(key))
+                        if consulta is None:
+                            log["warnings"].append(
+                                f"INEGI {key}: sin indicador base para fusionar; se omite.")
+                            continue
+                    else:
+                        api_meta = ind.pop("api_meta", {})
+                        merge_indicator(payload, key, ind)
+                        nueva = ind.get("last_observation")
+                        consulta = {
+                            "fuente": name, "indicador": key,
+                            "serie": api_meta.get("serie") or ind.get("fuente", {}).get("serie"),
+                            "observaciones": api_meta.get("n_obs"),
+                            "ultima_observacion": nueva,
+                            "ultimo_valor": api_meta.get("ultimo_valor"),
+                            "observacion_previa": prev_obs.get(key),
+                            "actualizacion_fuente": api_meta.get("lastupdate"),
+                            "dato_nuevo": nueva is not None and nueva != prev_obs.get(key),
+                            "resultado": "consulta válida",
+                        }
+                    log["consultas"].append(consulta)
+                    log["changes"].append(
+                        f"{name}: actualizado {key} (última obs {consulta['ultima_observacion']}"
+                        + (", dato nuevo" if consulta["dato_nuevo"] else ", sin cambio de periodo") + ")")
 
     # Overrides de calidad
     log["changes"].extend(L.apply_overrides(payload))

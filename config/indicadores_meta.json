@@ -5,7 +5,7 @@
   "profile": {
     "PIB": { "requiere_token": "INEGI", "serie_confirmada": false, "clasificacion": "principal" },
     "PIBSEC": { "requiere_token": "INEGI", "serie_confirmada": false, "clasificacion": "principal" },
-    "IGAE": { "requiere_token": "INEGI", "serie_confirmada": false, "clasificacion": "principal", "nombre": "Indicador Global de la Actividad Económica" },
+    "IGAE": { "requiere_token": "INEGI", "serie_confirmada": true, "clasificacion": "principal", "nombre": "Indicador Global de la Actividad Económica" },
     "IMAI": { "requiere_token": "INEGI", "serie_confirmada": false, "clasificacion": "principal" },
     "BALANZA": { "requiere_token": "INEGI", "serie_confirmada": false, "clasificacion": "principal" },
     "DESOCUP": { "requiere_token": "INEGI", "serie_confirmada": false, "clasificacion": "principal" },
