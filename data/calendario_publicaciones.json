@@ -2,7 +2,7 @@
   "_comment": "Generado por scripts/build_calendar.py a partir de data/calendar_sources/. No editar a mano.",
   "fuente": "Calendario de publicaciones económicas 2026 (INEGI). Fechas oficiales de difusión.",
   "actualizado": "2026-07-16",
-  "as_of": "2026-07-16",
+  "as_of": "2026-07-30",
   "anios": [
     2026
   ],
@@ -83,7 +83,7 @@
       "anio": 2026,
       "mes": 7,
       "periodo_referencia": "Junio 2026",
-      "estatus": "próximo"
+      "estatus": "publicado"
     },
     {
       "clave": "IGAE",
@@ -96,7 +96,7 @@
       "anio": 2026,
       "mes": 7,
       "periodo_referencia": "Mayo 2026",
-      "estatus": "próximo"
+      "estatus": "publicado"
     },
     {
       "clave": "DESOCUP",
@@ -109,7 +109,7 @@
       "anio": 2026,
       "mes": 7,
       "periodo_referencia": "Junio 2026",
-      "estatus": "próximo"
+      "estatus": "publicado"
     },
     {
       "clave": "BALANZA",
@@ -122,7 +122,7 @@
       "anio": 2026,
       "mes": 7,
       "periodo_referencia": "Junio 2026",
-      "estatus": "próximo"
+      "estatus": "publicado"
     },
     {
       "clave": "PIB",
@@ -135,7 +135,7 @@
       "anio": 2026,
       "mes": 7,
       "periodo_referencia": "2° trimestre 2026",
-      "estatus": "próximo"
+      "estatus": "publicado"
     },
     {
       "clave": "CONSUMO",

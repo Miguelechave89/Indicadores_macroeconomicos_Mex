@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-07-29T22:11:22+00:00",
+    "generated_at": "2026-07-30T15:02:23+00:00",
     "base_year": 2018,
     "default_window": "since_2018",
     "windows": [
@@ -540,8 +540,8 @@
         }
       ],
       "last_observation": "May 26",
-      "last_updated": "2026-07-29",
-      "last_checked": "2026-07-29",
+      "last_updated": "2026-07-30",
+      "last_checked": "2026-07-30",
       "source_origin": "api",
       "requiere_token": "INEGI",
       "serie_confirmada": true,
@@ -550,7 +550,7 @@
       "origen_dato": "api",
       "fecha_publicacion": "Aproximadamente 55 días después de haber concluido el mes",
       "periodo_referencia": "May 26",
-      "fecha_consulta": "2026-07-29"
+      "fecha_consulta": "2026-07-30"
     },
     "IMAI": {
       "key": "IMAI",
@@ -1587,7 +1587,7 @@
       "requiere_token": "INEGI",
       "serie_confirmada": false,
       "clasificacion": "principal",
-      "estado": "pendiente de confirmar serie",
+      "estado": "pendiente de token",
       "origen_dato": "pendiente",
       "fecha_publicacion": "Aproximadamente 55 días tras el cierre del mes",
       "periodo_referencia": null,
@@ -1633,7 +1633,7 @@
       "requiere_token": "INEGI",
       "serie_confirmada": false,
       "clasificacion": "principal",
-      "estado": "pendiente de confirmar serie",
+      "estado": "pendiente de token",
       "origen_dato": "pendiente",
       "fecha_publicacion": "Fin de mes del periodo estimado",
       "periodo_referencia": null,
@@ -1674,7 +1674,7 @@
       "requiere_token": "INEGI",
       "serie_confirmada": false,
       "clasificacion": "principal",
-      "estado": "pendiente de confirmar serie",
+      "estado": "pendiente de token",
       "origen_dato": "pendiente",
       "fecha_publicacion": "Aproximadamente 40 días tras el cierre del mes",
       "periodo_referencia": null,
