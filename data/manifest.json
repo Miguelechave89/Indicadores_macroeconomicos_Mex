@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T15:02:23+00:00",
+  "generated_at": "2026-07-31T15:13:20+00:00",
   "indicadores": [
     {
       "indicador": "Producto Interno Bruto",
@@ -61,8 +61,8 @@
       "ultima_observacion": "May 26",
       "periodo_referencia": "May 26",
       "fecha_publicacion": "Aproximadamente 55 días después de haber concluido el mes",
-      "fecha_consulta": "2026-07-30",
-      "fecha_actualizacion_archivo": "2026-07-30",
+      "fecha_consulta": "2026-07-31",
+      "fecha_actualizacion_archivo": "2026-07-31",
       "metodo_actualizacion": "INEGI BIE API",
       "estado": "actualizado automáticamente",
       "origen_dato": "api",
