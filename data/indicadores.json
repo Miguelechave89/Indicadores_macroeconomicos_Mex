@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-08-03T04:28:50+00:00",
+    "generated_at": "2026-08-03T15:41:44+00:00",
     "base_year": 2018,
     "default_window": "since_2018",
     "windows": [
@@ -1620,7 +1620,7 @@
       "requiere_token": "INEGI",
       "serie_confirmada": false,
       "clasificacion": "principal",
-      "estado": "pendiente de confirmar serie",
+      "estado": "pendiente de token",
       "origen_dato": "pendiente",
       "fecha_publicacion": "Aproximadamente 55 días tras el cierre del mes",
       "periodo_referencia": null,
@@ -1666,7 +1666,7 @@
       "requiere_token": "INEGI",
       "serie_confirmada": false,
       "clasificacion": "principal",
-      "estado": "pendiente de confirmar serie",
+      "estado": "pendiente de token",
       "origen_dato": "pendiente",
       "fecha_publicacion": "Fin de mes del periodo estimado",
       "periodo_referencia": null,
@@ -1707,7 +1707,7 @@
       "requiere_token": "INEGI",
       "serie_confirmada": false,
       "clasificacion": "principal",
-      "estado": "pendiente de confirmar serie",
+      "estado": "pendiente de token",
       "origen_dato": "pendiente",
       "fecha_publicacion": "Aproximadamente 40 días tras el cierre del mes",
       "periodo_referencia": null,

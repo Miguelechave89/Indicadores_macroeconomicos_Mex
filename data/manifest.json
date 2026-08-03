@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T04:28:50+00:00",
+  "generated_at": "2026-08-03T15:41:44+00:00",
   "indicadores": [
     {
       "indicador": "Producto Interno Bruto",
@@ -208,7 +208,7 @@
       "fecha_consulta": null,
       "fecha_actualizacion_archivo": null,
       "metodo_actualizacion": "INEGI BIE API",
-      "estado": "pendiente de confirmar serie",
+      "estado": "pendiente de token",
       "origen_dato": "pendiente",
       "requiere_token": "INEGI",
       "serie_confirmada": false,
@@ -232,7 +232,7 @@
       "fecha_consulta": null,
       "fecha_actualizacion_archivo": null,
       "metodo_actualizacion": "INEGI (comunicado / BIE)",
-      "estado": "pendiente de confirmar serie",
+      "estado": "pendiente de token",
       "origen_dato": "pendiente",
       "requiere_token": "INEGI",
       "serie_confirmada": false,
@@ -256,7 +256,7 @@
       "fecha_consulta": null,
       "fecha_actualizacion_archivo": null,
       "metodo_actualizacion": "INEGI BIE API",
-      "estado": "pendiente de confirmar serie",
+      "estado": "pendiente de token",
       "origen_dato": "pendiente",
       "requiere_token": "INEGI",
       "serie_confirmada": false,
